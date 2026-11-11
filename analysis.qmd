@@ -35,3 +35,16 @@ fires <- wildfires |>
     fire_year = as.integer(fire_year)
   )
 ```
+
+```{r}
+august_fires <- fires |>
+  dplyr::filter(stringr::str_detect(
+    incident,
+    stringr::regex("August", ignore_case = TRUE)
+  ))
+nrow(august_fires)
+
+fires |>
+  dplyr::slice_max(gis_acres, n = 10) |>
+  dplyr::select(incident, gis_acres)
+```
