@@ -50,22 +50,23 @@ fires |>
 ```
 
 ```{r}
-state_acres <- fires |>
-  dplyr::filter(!is.na(state)) |>
-  dplyr::group_by(state) |>
-  dplyr::summarise(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
-  dplyr::slice_max(total_acres, n = 10, with_ties = FALSE)
-
-ggplot2::ggplot(
-  state_acres,
-  ggplot2::aes(x = reorder(state, total_acres), y = total_acres)
-) +
-  ggplot2::geom_col() +
-  ggplot2::coord_flip() +
-  ggplot2::labs(
-    title = "Total Wildfire Acres Burned by State",
-    x = "State",
-    y = "Total acres burned",
-    caption = "Source: wildfire incident data"
+big_fires <- fires |>
+  dplyr::filter(gis_acres >= 100000) |>
+  dplyr::mutate(
+    lon = purrr::map_dbl(
+      geometry_coordinates,
+      \(coordinates) mean(purrr::map_dbl(
+        coordinates[[1]],
+        \(pair) as.numeric(pair[[1]])
+      ))
+    ),
+    lat = purrr::map_dbl(
+      geometry_coordinates,
+      \(coordinates) mean(purrr::map_dbl(
+        coordinates[[1]],
+        \(pair) as.numeric(pair[[2]])
+      ))
+    )
   )
+print(big_fires)
 ```
