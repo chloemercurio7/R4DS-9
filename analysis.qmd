@@ -50,16 +50,21 @@ fires |>
 ```
 
 ```{r}
-annual_acres <- fires |>
-  dplyr::filter(!is.na(fire_year)) |>
-  dplyr::group_by(fire_year) |>
-  dplyr::summarise(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop")
+state_acres <- fires |>
+  dplyr::filter(!is.na(state)) |>
+  dplyr::group_by(state) |>
+  dplyr::summarise(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
+  dplyr::slice_max(total_acres, n = 10, with_ties = FALSE)
 
-ggplot2::ggplot(annual_acres, ggplot2::aes(x = fire_year, y = total_acres)) +
-  ggplot2::geom_line() +
+ggplot2::ggplot(
+  state_acres,
+  ggplot2::aes(x = reorder(state, total_acres), y = total_acres)
+) +
+  ggplot2::geom_col() +
+  ggplot2::coord_flip() +
   ggplot2::labs(
-    title = "Total Wildfire Acres Burned by Year",
-    x = "Year",
+    title = "Total Wildfire Acres Burned by State",
+    x = "State",
     y = "Total acres burned",
     caption = "Source: wildfire incident data"
   )
