@@ -11,4 +11,7 @@ library(tidyverse)
 library(purrr)
 library(leaflet)
 library(jsonlite)
+
+raw <- fromJSON("data/wildfires.geojson", simplifyVector = FALSE)
+print(length(raw$features))
 ```
