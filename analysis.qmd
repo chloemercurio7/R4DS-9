@@ -20,4 +20,9 @@ print(names(first_fire))
 
 first_coordinate <- first_fire$geometry$coordinates[[1]][[1]]
 print(first_coordinate)
+
+wildfires <- tibble(features = raw$features) |>
+  unnest_wider(features) |>
+  unnest_wider(properties)
+print(wildfires)
 ```
