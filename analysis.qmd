@@ -71,13 +71,49 @@ big_fires <- fires |>
 ```
 
 ```{r}
-leaflet::leaflet(big_fires) |>
-  leaflet::addTiles() |>
-  leaflet::addCircleMarkers(
-    lng = ~lon,
-    lat = ~lat,
-    radius = ~sqrt(gis_acres) / 10,
-    popup = ~paste(incident, scales::comma(gis_acres), "acres")
-  ) |>
-  leaflet::setView(lng = -118, lat = 39, zoom = 4)
+top_fires <- big_fires |>
+  dplyr::slice_max(gis_acres, n = 10, with_ties = FALSE)
+
+map <- leaflet::leaflet() |>
+  leaflet::addTiles()
+
+for (i in seq_len(nrow(top_fires))) {
+  boundary <- top_fires$geometry_coordinates[[i]][[1]]
+  longitude <- purrr::map_dbl(boundary, \(point) as.numeric(point[[1]]))
+  latitude <- purrr::map_dbl(boundary, \(point) as.numeric(point[[2]]))
+  popup <- paste0(
+    "<strong>", htmltools::htmlEscape(top_fires$incident[[i]]), "</strong>",
+    "<br>Year: ", top_fires$fire_year[[i]],
+    "<br>Acres: ", scales::comma(top_fires$gis_acres[[i]])
+  )
+
+  map <- map |>
+    leaflet::addPolygons(
+      lng = longitude,
+      lat = latitude,
+      popup = popup
+    )
+}
+
+all_boundaries <- purrr::map(
+  top_fires$geometry_coordinates,
+  \(coordinates) coordinates[[1]]
+) |>
+  purrr::flatten()
+all_longitudes <- purrr::map_dbl(
+  all_boundaries,
+  \(point) as.numeric(point[[1]])
+)
+all_latitudes <- purrr::map_dbl(
+  all_boundaries,
+  \(point) as.numeric(point[[2]])
+)
+
+map |>
+  leaflet::fitBounds(
+    lng1 = min(all_longitudes),
+    lat1 = min(all_latitudes),
+    lng2 = max(all_longitudes),
+    lat2 = max(all_latitudes)
+  )
 ```
