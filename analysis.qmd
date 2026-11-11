@@ -68,5 +68,16 @@ big_fires <- fires |>
       ))
     )
   )
-print(big_fires)
+```
+
+```{r}
+leaflet::leaflet(big_fires) |>
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(
+    lng = ~lon,
+    lat = ~lat,
+    radius = ~sqrt(gis_acres) / 10,
+    popup = ~paste(incident, scales::comma(gis_acres), "acres")
+  ) |>
+  leaflet::setView(lng = -118, lat = 39, zoom = 4)
 ```
