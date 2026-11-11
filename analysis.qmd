@@ -33,5 +33,4 @@ fires <- wildfires |>
     gis_acres = as.numeric(gis_acres),
     fire_year = as.integer(fire_year)
   )
-print(fires)
 ```
